@@ -24,3 +24,9 @@ pnpm-debug.log*
 
 #Electron-builder output
 /dist_electron
+
+#credentials
+credentials.json
+
+#sound files
+*.mp3
