@@ -69,6 +69,10 @@
         <alias>Shower</alias>
     </lexeme>
     <lexeme>
+        <grapheme>-SH</grapheme>
+        <alias>Light Shower</alias>
+    </lexeme>
+    <lexeme>
         <grapheme>TS</grapheme>
         <alias>Thunderstorm</alias>
     </lexeme>
@@ -147,9 +151,5 @@
     <lexeme>
         <grapheme>FC</grapheme>
         <alias>Funnel cloud</alias>
-    </lexeme>
-    <lexeme>
-        <grapheme>SS</grapheme>
-        <alias>Sandstorm</alias>
     </lexeme>
 </lexicon>
