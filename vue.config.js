@@ -37,7 +37,7 @@ module.exports = {
             builderOptions: {
                 extraResources: ["src/preload.js"],
                 productName: "ATIS Broadcaster for SHAPANet",
-                appId: "com.kent-and-co.tacalexport.vue",
+                appId: "com.kent-and-co.ts3-atis",
                 win: {
                     electronUpdaterCompatibility: ">=2.16",
                     target: [

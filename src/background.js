@@ -27,7 +27,8 @@ async function createWindow() {
       // nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       nodeIntegration: true,
       webSecurity: false,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      // contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      contextIsolation: false,
       preload: path.resolve(__static, 'preload.js'),
     }
   })
