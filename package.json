@@ -16,6 +16,7 @@
   "dependencies": {
     "aws-sdk": "^2.922.0",
     "core-js": "^3.6.5",
+    "electron-log": "^4.3.5",
     "electron-updater": "^4.3.9",
     "vue": "^3.0.0"
   },
