@@ -6,6 +6,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 const path = require('path');
+const fs = require("fs");
 
 import "./autoUpdate";
 import { awsPolly } from './modules/polly';
@@ -14,6 +15,8 @@ import { awsPolly } from './modules/polly';
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
+
+const filepath = app.getPath('userData');
 
 async function createWindow() {
   // Create the browser window.
@@ -71,6 +74,12 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
+
+  const regex = /[.]mp3$/
+  fs.readdirSync(filepath)
+    .filter(f => regex.test(f))
+    .map(f => fs.unlinkSync(path.join(filepath, f)))
+
   createWindow()
 })
 
@@ -89,9 +98,14 @@ if (isDevelopment) {
   }
 }
 
-ipcMain.handle('generateAtis', async (e, content) => {
-  const filepath = app.getPath('userData');
-  const polly = new awsPolly(content, filepath)
+ipcMain.handle('getVoices', async () => {
+  const polly = new awsPolly();
+  const res = await polly.getVoices();
+  return res;
+})
+
+ipcMain.handle('generateAtis', async (e, form) => {
+  const polly = new awsPolly(JSON.parse(form), filepath)
   const resFile = await polly.generateAtis();
   return resFile;
 })

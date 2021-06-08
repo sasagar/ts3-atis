@@ -5,11 +5,15 @@ const fs = require("fs").promises;
 
 export class awsPolly {
 
-    constructor(content, filepath) {
+    constructor(form, filepath) {
         aws.config.loadFromPath(path.join(__static, './credentials.json'));
-        this.content = content;
+        this.form = form;
         this.filepath = filepath;
         this.polly = new aws.Polly({ region: 'us-west-2' });
+        this.descParams = {
+            LanguageCode: "en-US"
+        }
+
     }
     // const msg = 'Tokyo intl Airport Information A 0800Z. \
     //          ILS Z RWY 34L / ILS Z RWY 34R, LDG RWY 34L / 34R DEP RWY 05 / 34R, \
@@ -21,60 +25,68 @@ export class awsPolly {
     //              INFORM YR LDG RWY TO OSAKA TWR ON INITIAL CTC. Wind 360 AT 5KT,\
     //              Vis 5KM. -SHRA FEW020CU BKN030CU, 20 / 15, QNH 2980. Advise you have information B.'
 
+    // ILS Z RWY 34L / ILS Z RWY 34R, LDG RWY 34L / 34R DEP RWY 05 / 34R, DEP FREQ 126.0, SIMUL PARL ILS APCHS TO RWY34L / R ARE INPR, Wind 360 AT 5KT, Vis 9999. FEW020 BKN050, 20 / 15, QNH 3036.
+
+    getVoices() {
+        return new Promise((resolve) => {
+            this.polly.describeVoices(this.descParams, (err, data) => {
+                resolve(data.Voices);
+            });
+        }).catch((e) => {
+            console.error(e);
+            return e;
+        });
+    }
+
     generateAtis() {
         return new Promise((resolve) => {
-            console.log(this.content)
+            let atisMsg = '';
+            atisMsg += this.form.icao;
+            atisMsg += ' ' + 'Information ' + this.form.info;
+            atisMsg += ' ' + this.form.time + 'Z.';
+            atisMsg += ' ' + this.form.content;
+            atisMsg += ' ' + 'Advice you have information ' + this.form.info + '.';
+            console.log(atisMsg)
 
             this.putlex('lexicons/ATIS-1.pls', 'ATIS1');
             this.putlex('lexicons/ATIS-2.pls', 'ATIS2');
             this.putlex('lexicons/ATIS-3.pls', 'ATIS3');
             this.putlex('lexicons/Phonetic.pls', 'PHONETIC');
 
-            const textMsg = this.textEscapes(this.content);
+            const textMsg = this.textEscapes(atisMsg);
 
-            console.log(textMsg)
-            let descParams = {
-                LanguageCode: "en-US"
-            }
+            console.log(this.form.voice)
 
-            this.polly.describeVoices(descParams, (err, data) => {
 
+            // synthesizeSpeech
+            let speechParams = {
+                OutputFormat: 'mp3',
+                Engine: 'neural',
+                VoiceId: this.form.voice,
+                Text: textMsg,
+                SampleRate: '22050',
+                TextType: 'text',
+                LexiconNames: [
+                    'ATIS1',
+                    'ATIS2',
+                    'ATIS3',
+                    'PHONETIC'
+                ]
+            };
+
+            this.polly.synthesizeSpeech(speechParams, async (err, data) => {
                 if (err) {
-                    // return rej(err);
+                    // logger.error(err);
+                    console.error(err)
                     throw new Error(err);
+                } else {
+                    const date = new Date();
+                    const time = date.getTime();
+                    await fs.writeFile(path.join(this.filepath, "atis" + time + ".mp3"), data.AudioStream, (err) => {
+                        if (err) throw new Error(err);
+                    });
+                    resolve(path.join(this.filepath, "atis" + time + ".mp3"));
                 }
-                // console.dir(JSON.stringify(data));
-                let voiceId = data.Voices[3].Id;
-                // logger.trace("readText Try");
-
-                // synthesizeSpeech
-                let speechParams = {
-                    OutputFormat: 'mp3',
-                    Engine: 'neural',
-                    VoiceId: voiceId,
-                    Text: textMsg,
-                    SampleRate: '22050',
-                    TextType: 'text',
-                    LexiconNames: [
-                        'ATIS1',
-                        'ATIS2',
-                        'ATIS3',
-                        'PHONETIC'
-                    ]
-                };
-
-                this.polly.synthesizeSpeech(speechParams, async (err, data) => {
-                    if (err) {
-                        // logger.error(err);
-                        console.error(err)
-                        throw new Error(err);
-                    } else {
-                        await fs.writeFile(path.join(this.filepath, "atis.mp3"), data.AudioStream, (err) => {
-                            if (err) throw new Error(err);
-                        });
-                        resolve(path.join(this.filepath, "atis.mp3"));
-                    }
-                });
             });
         }).catch((e) => {
             console.error(e);
