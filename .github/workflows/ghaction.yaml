@@ -1,0 +1,64 @@
+name: GitHub Release
+
+on:
+  push:
+    tags:
+      # "v" で始まる Tag 名の push だけをトリガーの対象にします (e.g., "v0.0.2")
+      - "v*"
+
+jobs:
+  # macOS 用の job 定義
+  # build_on_mac:
+  #   runs-on: macos-latest
+  #   env:
+  #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Use Node.js 15.x
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 15.x
+  #     - name: npm install
+  #       run: npm install
+  #     - name: License Generator
+  #       run: |
+  #         npm install -g license-checker
+  #         npm run licensegen
+  #     # code signing
+  #     - name: apple codesigning
+  #       uses: apple-actions/import-codesign-certs@v1
+  #       with:
+  #         p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+  #         p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+  #     # ここでアプリをビルド
+  #     - name: build application
+  #       env:
+  #         APPLEID: ${{ secrets.APPLEID }}
+  #         APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
+  #         ASC_PROVIDER: ${{ secrets.ASC_PROVIDER }}
+  #       run: |
+  #         xcrun altool --store-password-in-keychain-item "AC_PASSWORD" -u $APPLEID -p $APPLEIDPASS
+  #         echo ${{ secrets.TCE_GOOGLE_CLIENT_SECRET }} | base64 -d > src/json/client_secret.json
+  #         npm run electron:release --mac
+
+  # Windows 用の job 定義
+  build_on_win:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 15.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15.x
+      - name: npm install
+        run: npm install
+      # - name: License Generator
+      #   run: |
+      #     npm install -g license-checker
+      #     npm run licensegen
+      - name: build application
+        run: |
+          echo ${{ secrets.SHAPANET_AWS_CREDENTIALS }} | base64 -d > public/credentials.json
+          npm run electron:release --win
