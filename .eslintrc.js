@@ -1,5 +1,4 @@
 module.exports = {
-    root: true,
     globals: {
         __static: 'readonly',
     },
@@ -11,8 +10,7 @@ module.exports = {
         sourceType: "module",
     },
     extends: [
-        'plugin:vue/recommended',
-        'standard'
+        'plugin:vue/vue3-essential',
     ],
     plugins: [
         'vue'
