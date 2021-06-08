@@ -1,4 +1,5 @@
 module.exports = {
+    root: true,
     globals: {
         __static: 'readonly',
     },
@@ -6,7 +7,14 @@ module.exports = {
         es6: true
     },
     parserOptions: {
+        parser: "babel-eslint",
         sourceType: "module",
-        ecmaVersion: 2018,
-    }
+    },
+    extends: [
+        'plugin:vue/recommended',
+        'standard'
+    ],
+    plugins: [
+        'vue'
+    ],
 }
