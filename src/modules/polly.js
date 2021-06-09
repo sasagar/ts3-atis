@@ -2,6 +2,7 @@ const aws = require("aws-sdk");
 const path = require("path");
 const fs = require("fs").promises;
 
+import { findAirport } from './findAirport';
 
 export class awsPolly {
 
@@ -39,9 +40,12 @@ export class awsPolly {
     }
 
     generateAtis() {
+        const findAp = new findAirport();
+        const icao = findAp.getAirport(this.form.icao);
+
         return new Promise((resolve) => {
             let atisMsg = '';
-            atisMsg += this.form.icao;
+            atisMsg += icao.name;
             atisMsg += ' ' + 'Information ' + this.form.info;
             atisMsg += ' ' + this.form.time + 'Z.';
             atisMsg += ' ' + this.form.content;

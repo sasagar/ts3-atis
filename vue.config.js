@@ -33,9 +33,9 @@ module.exports = {
             openAnalyzer: false,
         },
         electronBuilder: {
-            mainProcessWatch: ["modules/polly.js", "auto-update.js"],
+            mainProcessWatch: ["src/modules/polly.js", "src/modules/findAirport.js", "src/auto-update.js"],
             builderOptions: {
-                extraResources: ["src/preload.js"],
+                extraResources: ["public/preload.js"],
                 productName: "ATIS Broadcaster for SHAPANet",
                 appId: "com.kent-and-co.ts3-atis",
                 win: {

@@ -30,3 +30,6 @@ credentials.json
 
 #sound files
 *.mp3
+
+#data files
+/data
